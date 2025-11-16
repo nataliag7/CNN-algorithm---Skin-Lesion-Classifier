@@ -290,23 +290,3 @@ assert check.shape[0] == len(test_images) and check.shape[1] == 2
 assert set(check[1].unique()) <= set(classes)
 print("Submission shape OK:", check.shape)
 
-
-#Predict TEST
-test_stems_sorted = sorted(test_images.keys())
-test_paths_sorted = [test_images[s] for s in test_stems_sorted]
-test_mask_paths   = [test_masks.get(s, "") for s in test_stems_sorted]
-
-test_ds = make_test_ds(test_paths_sorted, test_mask_paths)
-probs = model.predict(test_ds, verbose=1).ravel()
-pred_idx = (probs >= t_star).astype(int)
-pred_labels = [index_to_class[i] for i in pred_idx]
-
-sub = pd.DataFrame({0: test_stems_sorted, 1: pred_labels})
-sub.to_csv("SkinLesionTest_Predictions.csv", index=False, header=False)
-print(sub.head(), "\nSaved -> SkinLesionTest_Predictions.csv")
-
-check = pd.read_csv("SkinLesionTest_Predictions.csv", header=None)
-assert check.shape[0] == len(test_images) and check.shape[1] == 2
-assert set(check[1].unique()) <= set(classes)
-print("Submission shape OK:", check.shape)
-
