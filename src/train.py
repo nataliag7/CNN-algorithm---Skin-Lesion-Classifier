@@ -1,27 +1,58 @@
 import argparse
 
 def parse_args():
-    p = argparse.ArgumentParser()
-    p.add_argument("--train_img_dir", required=True)
-    p.add_argument("--test_img_dir", required=True)
-    p.add_argument("--train_csv", required=True)
-    p.add_argument("--epochs_stage1", type=int, default=5)
-    p.add_argument("--epochs_stage2", type=int, default=20)
-    return p.parse_args()
+    parser = argparse.ArgumentParser(description="Skin lesion classifier training script")
 
-if __name__ == "__main__":
-    args = parse_args()
-    TRAIN_IMG_DIR = args.train_img_dir
-    TEST_IMG_DIR  = args.test_img_dir
-    TRAIN_CSV     = args.train_csv
-    EPOCHS_STAGE1 = args.epochs_stage1
-    EPOCHS_STAGE2 = args.epochs_stage2
+    parser.add_argument(
+        "--train_img_dir",
+        required=True,
+        help="Path to folder with training images (and *_Segmentation masks).",
+    )
+    parser.add_argument(
+        "--test_img_dir",
+        required=True,
+        help="Path to folder with test images (and *_Segmentation masks).",
+    )
+    parser.add_argument(
+        "--train_csv",
+        required=True,
+        help="Path to SkinLesionTraining_GroundTruth.csv file.",
+    )
+    parser.add_argument(
+        "--epochs_stage1",
+        type=int,
+        default=5,
+        help="Number of epochs for stage 1 (frozen backbone).",
+    )
+    parser.add_argument(
+        "--epochs_stage2",
+        type=int,
+        default=20,
+        help="Number of epochs for stage 2 (fine-tuning).",
+    )
+    parser.add_argument(
+        "--fast",
+        action="store_true",
+        help="Enable fast mode (e.g. fewer samples / epochs) if your script supports it.",
+    )
+    parser.add_argument(
+        "--subset_per_class",
+        type=int,
+        default=None,
+        help="Optional: limit number of samples per class for quick experiments.",
+    )
 
-#Baseline Config
-FAST = False
-EPOCHS_STAGE1 = 5
-EPOCHS_STAGE2 = 20
-SUBSET_PER_CLASS = None
+    return parser.parse_args()
+
+args = parse_args()
+
+TRAIN_IMG_DIR = args.train_img_dir
+TEST_IMG_DIR = args.test_img_dir
+TRAIN_CSV = args.train_csv
+EPOCHS_STAGE1 = args.epochs_stage1
+EPOCHS_STAGE2 = args.epochs_stage2
+FAST = args.fast
+SUBSET_PER_CLASS = args.subset_per_class
 
 IMG_SIZE = 224
 BATCH    = 32
