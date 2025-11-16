@@ -168,21 +168,7 @@ def make_test_ds(paths, masks):
     return ds.batch(BATCH).prefetch(AUTOTUNE)
 
 #Model (EfficientNetB0, two-stage fine-tune)
-base = tf.keras.applications.EfficientNetB0(
-    include_top=False, input_shape=(IMG_SIZE, IMG_SIZE, 3), weights="imagenet"
-)
-base.trainable = False
-
-inputs = tf.keras.Input((IMG_SIZE, IMG_SIZE, 3))
-z = tf.keras.layers.Rescaling(255.0)(inputs)
-x = base(z, training=False)
-x = tf.keras.layers.GlobalAveragePooling2D()(x)
-x = tf.keras.layers.Dropout(0.25)(x)
-outputs = tf.keras.layers.Dense(1, activation="sigmoid", dtype="float32")(x)
-loss = "binary_crossentropy"
-metrics = ["accuracy", tf.keras.metrics.AUC(name="auc")]
-model = tf.keras.Model(inputs, outputs)
-model.compile(optimizer=tf.keras.optimizers.Adam(LR1), loss=loss, metrics=metrics)
+model, base = build_model(IMG_SIZE, LR1)
 model.summary()
 
 #Stage 1 (AUC-based)
