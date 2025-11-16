@@ -94,6 +94,11 @@ For each image:
    - Pixel values are converted to `float32` and rescaled to **[0, 1]**.
    - Within the model, a rescaling layer adjusts the dynamic range for EfficientNetB0.
 
+![Augmented, mask-cropped samples](./assets/augmented_mask_cropped_samples.png)
+<p align="center">
+  <em>Augmented, mask-cropped samples used as input to the classifier.</em>
+</p>
+
 ---
 
 ## 🧠 Model
