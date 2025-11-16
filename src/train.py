@@ -40,7 +40,7 @@ from data_utils import (
     decode_mask,
     crop_to_mask_with_margin,
 )
-from model_utils import build_model, prepare_for_stage2
+from model_utils import build_model, prepare_for_stage2, plot_curves
 
 np.random.seed(42); random.seed(42); tf.random.set_seed(42)
 AUTOTUNE = tf.data.AUTOTUNE
@@ -105,7 +105,7 @@ augment = tf.keras.Sequential([
 resize_only = tf.keras.layers.Resizing(IMG_SIZE, IMG_SIZE)
 
 def preprocess_row(img_path, mask_path, label, training=True, zero_background=True):
-    """Decode RGB, optional mask crop/zero, resize/augment, make label tensor."""
+    ##Decode RGB, optional mask crop/zero, resize/augment, make label tensor.
     img = decode_rgb(img_path)                            #float32 [0,1], (H,W,3)
     has_mask = tf.greater(tf.strings.length(mask_path), 0)
 
@@ -210,12 +210,6 @@ history2 = model.fit(
     callbacks=[ckpt2, early, rlrop, csv2],
     verbose=1
 )
-
-#Curves & val metrics
-def plot_curves(h1, h2, key="val_auc", title=None):
-    series = (h1.history.get(key, []) or []) + (h2.history.get(key, []) or [])
-    plt.figure(figsize=(12,4)); plt.plot(series); 
-    plt.title(title or key); plt.xlabel("Epoch"); plt.ylabel(key); plt.show()
 
 plot_curves(history1, history2, "val_auc", "Validation AUC (both stages)")
 plot_curves(history1, history2, "val_loss", "Val Loss (both stages)")
