@@ -23,6 +23,8 @@ import os, random, numpy as np, pandas as pd, tensorflow as tf, matplotlib.pyplo
 from sklearn.model_selection import train_test_split
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, balanced_accuracy_score, confusion_matrix
+from data_utils import to_stem
+
 np.random.seed(42); random.seed(42); tf.random.set_seed(42)
 AUTOTUNE = tf.data.AUTOTUNE
 print("TF:", tf.__version__, "| GPU:", tf.config.list_physical_devices('GPU'))
@@ -61,11 +63,6 @@ print(f"TEST : {len(test_images)} photos, {len(test_masks)} masks (test masks op
 
 #Align rows to photo paths by stem
 df = pd.read_csv(TRAIN_CSV, header=None, names=["image","label"])
-def to_stem(s):
-    s = os.path.basename(str(s))
-    stem = os.path.splitext(s)[0]
-    if stem.endswith("_Segmentation"): stem = stem[:-13]
-    return stem
 
 df["stem"] = df["image"].apply(to_stem)
 df["img_path"]  = df["stem"].map(train_images)
