@@ -194,11 +194,7 @@ history1 = model.fit(
 )
 
 #Stage 2: unfreeze top ~40% (skip BatchNorms)
-unfreeze_from = int(0.60 * len(base.layers))
-for layer in base.layers[unfreeze_from:]:
-    if not isinstance(layer, tf.keras.layers.BatchNormalization):
-        layer.trainable = True
-model.compile(optimizer=tf.keras.optimizers.Adam(LR2), loss=loss, metrics=metrics)
+model = prepare_for_stage2(base, model, LR2)
 
 ckpt2 = tf.keras.callbacks.ModelCheckpoint(
     "lesion_best_stage2.weights.h5", monitor="val_auc", mode="max",
