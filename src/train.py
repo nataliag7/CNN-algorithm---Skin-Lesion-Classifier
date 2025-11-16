@@ -40,6 +40,7 @@ from data_utils import (
     decode_mask,
     crop_to_mask_with_margin,
 )
+from model_utils import build_model, prepare_for_stage2
 
 np.random.seed(42); random.seed(42); tf.random.set_seed(42)
 AUTOTUNE = tf.data.AUTOTUNE
