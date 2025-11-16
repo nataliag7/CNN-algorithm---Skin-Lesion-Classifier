@@ -1,12 +1,21 @@
-#!/usr/bin/env python
-# coding: utf-8
+import argparse
 
-# In[1]:
+def parse_args():
+    p = argparse.ArgumentParser()
+    p.add_argument("--train_img_dir", required=True)
+    p.add_argument("--test_img_dir", required=True)
+    p.add_argument("--train_csv", required=True)
+    p.add_argument("--epochs_stage1", type=int, default=5)
+    p.add_argument("--epochs_stage2", type=int, default=20)
+    return p.parse_args()
 
-
-TRAIN_IMG_DIR = r"C:/Users/natal/Downloads/SkinLesionTrainingData/SkinLesionTrainingData"
-TEST_IMG_DIR  = r"C:/Users/natal/Downloads/SkinLesionTestData/SkinLesionTestData"
-TRAIN_CSV     = r"C:/Users/natal/Downloads/SkinLesionTraining_GroundTruth.csv"
+if __name__ == "__main__":
+    args = parse_args()
+    TRAIN_IMG_DIR = args.train_img_dir
+    TEST_IMG_DIR  = args.test_img_dir
+    TRAIN_CSV     = args.train_csv
+    EPOCHS_STAGE1 = args.epochs_stage1
+    EPOCHS_STAGE2 = args.epochs_stage2
 
 #Baseline Config
 FAST = False
@@ -24,6 +33,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, balanced_accuracy_score, confusion_matrix
 from data_utils import to_stem
+from data_utils import (
+    scan_isic_dir,
+    to_stem,
+    decode_rgb,
+    decode_mask,
+    crop_to_mask_with_margin,
+)
 
 np.random.seed(42); random.seed(42); tf.random.set_seed(42)
 AUTOTUNE = tf.data.AUTOTUNE
