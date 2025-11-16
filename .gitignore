@@ -1,0 +1,21 @@
+#Python cache
+__pycache__/
+*.py[cod]
+*.ipynb_checkpoints
+
+#Virtual environments
+.venv/
+venv/
+
+#Data & outputs
+SkinLesionTrainingData/
+SkinLesionTestData/
+*.csv
+*.h5
+*.weights.h5
+*.log
+
+#OS / editor files
+.DS_Store
+.idea/
+.vscode/
