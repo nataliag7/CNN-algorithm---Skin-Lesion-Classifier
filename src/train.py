@@ -53,25 +53,6 @@ try:
 except Exception as e:
     print("Mixed precision not enabled:", e)
 
-IMG_EXTS = {".jpg",".jpeg",".png",".bmp",".tif",".tiff",".gif"}
-
-#Separate photos & masks
-def scan_isic_dir(dirpath):
-    """Return dicts {stem: path} for photos and masks. Masks end with '_Segmentation' stem."""
-    images, masks = {}, {}
-    for fname in os.listdir(dirpath):
-        ext = os.path.splitext(fname)[1].lower()
-        if ext not in IMG_EXTS: 
-            continue
-        stem = os.path.splitext(fname)[0]
-        full = os.path.join(dirpath, fname)
-        if stem.endswith("_Segmentation"):
-            images_stem = stem[:-13]
-            masks[images_stem] = full
-        else:
-            images[stem] = full
-    return images, masks
-
 train_images, train_masks = scan_isic_dir(TRAIN_IMG_DIR)
 test_images,  test_masks  = scan_isic_dir(TEST_IMG_DIR)
 print(f"TRAIN: {len(train_images)} photos, {len(train_masks)} masks")
@@ -111,44 +92,6 @@ train_df, val_df, y_train_idx, y_val_idx = train_test_split(
 cw = compute_class_weight(class_weight="balanced", classes=np.arange(num_classes), y=y_train_idx)
 class_weights = {int(i): float(w) for i,w in enumerate(cw)}
 print("Train:",len(train_df), " Val:",len(val_df), " Class weights:", class_weights)
-
-#Mask-aware preprocessing
-def decode_rgb(path):
-    img = tf.io.read_file(path)
-    img = tf.image.decode_image(img, channels=3, expand_animations=False)  #uint8
-    img = tf.image.convert_image_dtype(img, tf.float32)  #[0,1]
-    return img
-
-def decode_mask(path):
-    m = tf.io.read_file(path)
-    m = tf.image.decode_image(m, channels=1, expand_animations=False)  #uint8
-    m = tf.image.convert_image_dtype(m, tf.float32)                    #[0,1]
-    return m
-
-def crop_to_mask_with_margin(img, mask, has_mask, margin=0.10):
-    """Crop image to mask bbox (+margin). If mask missing/empty → return img."""
-    def _crop():
-        m = tf.squeeze(mask, -1)                                  #(H,W)
-        coords = tf.cast(tf.where(m > 0.05), tf.int32)
-
-        def _no_pixels():
-            return img
-
-        def _do_crop():
-            ys = coords[:, 0]; xs = coords[:, 1]
-            y1 = tf.reduce_min(ys); y2 = tf.reduce_max(ys)
-            x1 = tf.reduce_min(xs); x2 = tf.reduce_max(xs)
-            h = tf.shape(img, out_type=tf.int32)[0]
-            w = tf.shape(img, out_type=tf.int32)[1]
-            hbb = y2 - y1 + 1; wbb = x2 - x1 + 1
-            y_pad = tf.cast(tf.round(tf.cast(hbb, tf.float32) * margin), tf.int32)
-            x_pad = tf.cast(tf.round(tf.cast(wbb, tf.float32) * margin), tf.int32)
-            y1m = tf.clip_by_value(y1 - y_pad, 0, h - 1); y2m = tf.clip_by_value(y2 + y_pad, 0, h - 1)
-            x1m = tf.clip_by_value(x1 - x_pad, 0, w - 1); x2m = tf.clip_by_value(x2 + x_pad, 0, w - 1)
-            return tf.image.crop_to_bounding_box(img, y1m, x1m, y2m - y1m + 1, x2m - x1m + 1)
-
-        return tf.cond(tf.equal(tf.size(coords), 0), _no_pixels, _do_crop)
-    return tf.cond(has_mask, _crop, lambda: img)
 
 #Augment & resize
 augment = tf.keras.Sequential([
