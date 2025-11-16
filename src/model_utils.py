@@ -1,4 +1,5 @@
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 
 def build_model(img_size=224, lr=1e-3):
@@ -55,3 +56,29 @@ def prepare_for_stage2(base, model, lr2, unfreeze_from_fraction=0.60):
     )
 
     return model
+
+
+def plot_curves(h1, h2, key="val_auc", title=None):
+    ##Plot a metric (e.g. 'val_auc', 'val_loss') over epochs for both training stages.
+    series1 = h1.history.get(key)
+    series2 = h2.history.get(key)
+
+    if series1 is None or series2 is None:
+        print(f"[plot_curves] Key '{key}' not found in histories.")
+        print(f"Available keys in h1: {list(h1.history.keys())}")
+        print(f"Available keys in h2: {list(h2.history.keys())}")
+        return
+
+    plt.figure()
+    plt.plot(series1, label="Stage 1")
+    plt.plot(series2, label="Stage 2")
+    plt.xlabel("Epoch")
+    plt.ylabel(key)
+    if title:
+        plt.title(title)
+    else:
+        plt.title(key)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
