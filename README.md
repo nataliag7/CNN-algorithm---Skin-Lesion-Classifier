@@ -1,6 +1,6 @@
-# Skin Lesion Classification – MIA Challenge 🩺
+# Skin Lesion Classification 🩺
 
-This repository contains a deep learning pipeline for **binary skin lesion classification** (benign vs malignant) on dermoscopic images, developed for a **Medical Image Analysis (MIA) challenge**.
+This repository contains a deep learning pipeline for **binary skin lesion classification** (benign vs malignant) on dermoscopic images.
 
 The model uses **EfficientNetB0** with **transfer learning**, and leverages the provided **segmentation masks** purely for **preprocessing** (mask-guided cropping), not as supervision targets.
 
@@ -22,7 +22,7 @@ Key points:
 
 ## 📂 Data and splits
 
-The project expects data in the format of the MIA challenge:
+The project expects data in the format:
 
 - A training images directory, e.g.:
 
@@ -207,93 +207,13 @@ Possible improvements include:
 
 ---
 
-## ⚙️ Installation
-
-It’s recommended to use a virtual environment:
-
-Windows:
-
-    python -m venv .venv
-    .venv\Scripts\activate
-    pip install -r requirements.txt
-
-macOS / Linux:
-
-    python -m venv .venv
-    source .venv/bin/activate
-    pip install -r requirements.txt
-
-Dependencies (see `requirements.txt`):
-
-- `tensorflow`
-- `numpy`
-- `pandas`
-- `scikit-learn`
-- `matplotlib`
-
----
-
-## 🚀 Usage
-
-The training script is designed to be run from the command line and configured via arguments.
-
-### Basic command
-
-    python src/train.py ^
-      --train_img_dir "C:/path/to/SkinLesionTrainingData/SkinLesionTrainingData" ^
-      --test_img_dir "C:/path/to/SkinLesionTestData/SkinLesionTestData" ^
-      --train_csv "C:/path/to/SkinLesionTraining_GroundTruth.csv" ^
-      --epochs_stage1 5 ^
-      --epochs_stage2 20
-
-(on macOS / Linux, just use `\` instead of `^` for line continuation, or put everything on one line)
-
-### Arguments
-
-- `--train_img_dir` (required)  
-  Path to the folder containing **training images and masks**.
-
-- `--test_img_dir` (required)  
-  Path to the folder containing **test images and masks**.
-
-- `--train_csv` (required)  
-  Path to the training ground-truth CSV.
-
-- `--epochs_stage1` (optional, default: `5`)  
-  Number of epochs for Stage 1 (frozen EfficientNet backbone).
-
-- `--epochs_stage2` (optional, default: `20`)  
-  Number of epochs for Stage 2 (fine-tuning).
-
-- `--fast` (optional flag)  
-  If enabled, can be used for quicker debug runs (e.g. fewer samples / epochs) if supported by the script.
-
-- `--subset_per_class` (optional, int)  
-  Limit the number of samples per class for quick experiments (e.g. sanity checks).
-
-### Outputs
+## 📚 Outputs
 
 The script typically produces:
 
 - Model weights (e.g. best checkpoints for both stages).  
 - A CSV of predictions for the test set (e.g. `SkinLesionTest_Predictions.csv`).  
 - Training curves for validation ROC–AUC and loss (plotted via `plot_curves`).  
-
----
-
-## 📚 Reproducing the report
-
-To reproduce the results described above:
-
-1. Prepare the dataset in the same structure as the MIA challenge.  
-2. Install dependencies via `pip install -r requirements.txt`.  
-3. Run `train.py` with the same hyperparameters:
-   - `epochs_stage1 = 5`
-   - `epochs_stage2 = 20`
-   - learning rates `1×10⁻³` and `1×10⁻⁴` (as defined in the code)
-4. Use the validation set for:
-   - ROC–AUC model selection  
-   - Threshold sweeping for the best F1 (malignant as positive).  
 
 ---
 
